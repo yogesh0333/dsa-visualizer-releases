@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DSA Visualizer — Downloads</title>
+    <meta
+      name="description"
+      content="Download DSA Visualizer desktop builds (macOS & Windows). All published versions."
+    />
+    <style>
+      :root {
+        --bg: #0f0b18;
+        --panel: #1a1228;
+        --text: #ede6ff;
+        --muted: #a89cc8;
+        --accent: #863bff;
+        --accent2: #47bfff;
+        --border: #2d2240;
+        --danger: #ff6b6b;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        background: radial-gradient(1200px 600px at 20% -10%, #2a1850 0%, transparent 60%), var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+        min-height: 100vh;
+      }
+      .wrap {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 2.5rem 1.25rem 4rem;
+      }
+      h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.35rem;
+        letter-spacing: -0.02em;
+      }
+      .sub {
+        color: var(--muted);
+        margin: 0 0 1.75rem;
+        font-size: 0.95rem;
+      }
+      .badge {
+        display: inline-block;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 0.2rem 0.5rem;
+        border-radius: 999px;
+        background: rgba(134, 59, 255, 0.2);
+        color: #cbb6ff;
+        border: 1px solid rgba(134, 59, 255, 0.4);
+        margin-bottom: 0.75rem;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.25rem 1.35rem;
+        margin-bottom: 1.5rem;
+      }
+      .err {
+        color: var(--danger);
+        font-size: 0.9rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 0.55rem 0.5rem;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      th {
+        color: var(--muted);
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      a.dl {
+        display: inline-block;
+        margin: 0.15rem 0.35rem 0.15rem 0;
+        padding: 0.25rem 0.55rem;
+        border-radius: 8px;
+        background: rgba(71, 191, 255, 0.12);
+        color: var(--accent2);
+        text-decoration: none;
+        border: 1px solid rgba(71, 191, 255, 0.35);
+        font-size: 0.8rem;
+      }
+      a.dl:hover {
+        background: rgba(71, 191, 255, 0.2);
+      }
+      a.dl.mac {
+        background: rgba(134, 59, 255, 0.12);
+        color: #cbb6ff;
+        border-color: rgba(134, 59, 255, 0.35);
+      }
+      a.dl.mac:hover {
+        background: rgba(134, 59, 255, 0.22);
+      }
+      .tag {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: var(--text);
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+      footer {
+        margin-top: 2.5rem;
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      code {
+        background: rgba(0, 0, 0, 0.35);
+        padding: 0.1rem 0.35rem;
+        border-radius: 6px;
+        font-size: 0.85em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="badge">Public downloads</div>
+      <h1>DSA Visualizer</h1>
+      <p class="sub">
+        Desktop builds (macOS &amp; Windows). Older releases stay listed so you can download a previous
+        version anytime.
+      </p>
+
+      <div id="target-repo" class="card muted" hidden></div>
+
+      <div class="card">
+        <div id="status">Loading releases…</div>
+        <div id="table-wrap" hidden></div>
+      </div>
+
+      <footer>
+        Builds are <strong>unsigned</strong>; your OS may show security prompts. For source and web app,
+        use your private development repo; this page only hosts installers from the public releases
+        repository.
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        function parseRepo() {
+          const q = new URLSearchParams(location.search);
+          const qOwner = q.get("owner");
+          const qRepo = q.get("repo");
+          if (qOwner && qRepo) return { owner: qOwner, repo: qRepo };
+
+          const host = location.hostname;
+          const parts = location.pathname.split("/").filter(Boolean);
+          if (host.endsWith("github.io")) {
+            const owner = host.replace(/\.github\.io$/i, "");
+            const repo = parts[0] || "";
+            if (owner && repo) return { owner, repo };
+          }
+          /* Default public releases repo — override with ?owner=&repo= or host github.io */
+          return { owner: "yogesh0333", repo: "dsa-visualizer-releases" };
+        }
+
+        const { owner, repo } = parseRepo();
+        const api = "https://api.github.com/repos/" + encodeURIComponent(owner) + "/" + encodeURIComponent(repo) + "/releases?per_page=100";
+
+        const elStatus = document.getElementById("status");
+        const elTable = document.getElementById("table-wrap");
+        const elRepo = document.getElementById("target-repo");
+
+        elRepo.textContent = "Listing releases from " + owner + "/" + repo + " (API: " + api + ")";
+        elRepo.hidden = false;
+
+        function labelAsset(name) {
+          const lower = name.toLowerCase();
+          if (lower.endsWith(".dmg")) return "mac";
+          if (lower.endsWith(".exe")) return "win";
+          if (lower.endsWith(".msi")) return "msi";
+          if (lower.endsWith(".app") || lower.includes(".app.zip")) return "mac";
+          return "";
+        }
+
+        function render(releases) {
+          elStatus.textContent = "";
+          if (!releases.length) {
+            elStatus.textContent = "No releases yet. Publish from the private repo workflow once secrets are configured.";
+            return;
+          }
+
+          const rows = releases.map(function (rel) {
+            const mac = [];
+            const win = [];
+            (rel.assets || []).forEach(function (a) {
+              const k = labelAsset(a.name);
+              if (k === "mac") mac.push(a);
+              if (k === "win" || k === "msi") win.push(a);
+            });
+
+            const links = function (assets, cls) {
+              if (!assets.length) return '<span class="muted">—</span>';
+              return assets
+                .map(function (a) {
+                  const c = cls || (labelAsset(a.name) === "mac" ? "mac" : "");
+                  return '<a class="dl ' + c + '" href="' + a.browser_download_url + '" rel="noopener">' + escapeHtml(a.name) + "</a>";
+                })
+                .join("");
+            };
+
+            return (
+              "<tr>" +
+              "<td><span class=\"tag\">" +
+              escapeHtml(rel.tag_name || "") +
+              "</span><div class=\"muted\">" +
+              escapeHtml(rel.name || "") +
+              "</div></td>" +
+              "<td class=\"muted\">" +
+              (rel.published_at ? escapeHtml(rel.published_at.slice(0, 10)) : "—") +
+              "</td>" +
+              "<td>" +
+              links(mac, "mac") +
+              "</td>" +
+              "<td>" +
+              links(win, "") +
+              "</td>" +
+              "</tr>"
+            );
+          });
+
+          elTable.innerHTML =
+            "<table><thead><tr><th>Release</th><th>Date</th><th>macOS</th><th>Windows</th></tr></thead><tbody>" +
+            rows.join("") +
+            "</tbody></table>";
+          elTable.hidden = false;
+        }
+
+        function escapeHtml(s) {
+          return String(s)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+
+        fetch(api, { headers: { Accept: "application/vnd.github+json" } })
+          .then(function (r) {
+            if (!r.ok) throw new Error("GitHub API " + r.status + " — check owner/repo and that the releases repo is public.");
+            return r.json();
+          })
+          .then(render)
+          .catch(function (e) {
+            elStatus.innerHTML = '<span class="err">' + escapeHtml(e.message) + "</span>";
+          });
+      })();
+    </script>
+  </body>
+</html>
