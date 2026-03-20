@@ -138,6 +138,32 @@
         border-radius: 6px;
         font-size: 0.85em;
       }
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem 1rem;
+        margin: 0 0 1.25rem;
+      }
+      a.cta {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.92rem;
+        text-decoration: none;
+        border: 1px solid rgba(71, 191, 255, 0.45);
+        background: rgba(71, 191, 255, 0.15);
+        color: #9fddff;
+      }
+      a.cta:hover {
+        background: rgba(71, 191, 255, 0.28);
+      }
+      .cta-hint {
+        font-size: 0.82rem;
+        max-width: 26rem;
+        line-height: 1.4;
+      }
     </style>
   </head>
   <body>
@@ -149,6 +175,14 @@
         version anytime.
       </p>
 
+      <div class="cta-row">
+        <a class="cta" href="./app/">Use in browser (no install)</a>
+        <span class="muted cta-hint"
+          >Requires internet. Only the compiled site is published here — your private source repo is
+          unchanged.</span
+        >
+      </div>
+
       <div id="target-repo" class="card muted" hidden></div>
 
       <div class="card">
@@ -157,9 +191,8 @@
       </div>
 
       <footer>
-        Builds are <strong>unsigned</strong>; your OS may show security prompts. For source and web app,
-        use your private development repo; this page only hosts installers from the public releases
-        repository.
+        Desktop installers are <strong>unsigned</strong> (OS may warn). The browser app under
+        <code>./app/</code> is a production bundle only (no <code>src/</code> on this public repo).
       </footer>
     </div>
 
