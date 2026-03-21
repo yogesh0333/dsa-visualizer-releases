@@ -558,9 +558,17 @@
               </p>
               <p style="margin: 0 0 0.5rem"><strong>Option B — Remove quarantine (Terminal):</strong></p>
               <pre>xattr -cr "/Applications/DSA Visualizer.app"</pre>
-              <p style="margin: 0.5rem 0 0; font-size: 0.8rem">
-                Adjust the path if the app lives elsewhere. Then try opening the app again. A future
-                <strong>signed &amp; notarized</strong> build won’t need this (requires an Apple Developer account).
+              <p style="margin: 0.65rem 0 0.5rem"><strong>Option C — Launch from Terminal:</strong></p>
+              <p style="margin: 0 0 0.5rem; font-size: 0.86rem">
+                If the app is in <strong>Applications</strong>, this often works even when double‑click fails:
+              </p>
+              <pre>open -a "DSA Visualizer"</pre>
+              <p style="margin: 0.35rem 0 0; font-size: 0.8rem">
+                Or use the full path: <code>open "/Applications/DSA Visualizer.app"</code>
+              </p>
+              <p style="margin: 0.65rem 0 0; font-size: 0.8rem">
+                Adjust paths if the app lives elsewhere. A future <strong>signed &amp; notarized</strong> build won’t
+                need these workarounds (requires an Apple Developer account).
               </p>
             </div>
           </details>
