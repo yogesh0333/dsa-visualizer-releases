@@ -6,7 +6,7 @@
     <title>DSA Visualizer — Web &amp; desktop</title>
     <meta
       name="description"
-      content="Run DSA Visualizer in your browser or download the Mac and Windows desktop app. All releases in one place."
+      content="Run DSA Visualizer in your browser or download Mac, Windows, and Linux desktop builds. All releases in one place."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -265,6 +265,7 @@
         box-shadow: var(--shadow);
         backdrop-filter: blur(16px);
         margin-bottom: 1.5rem;
+        overflow-x: auto;
       }
       #target-repo {
         font-size: 0.78rem;
@@ -329,6 +330,14 @@
       }
       a.dl.mac:hover {
         background: rgba(168, 85, 255, 0.32);
+      }
+      a.dl.linux {
+        border-color: rgba(52, 211, 153, 0.45);
+        background: rgba(16, 185, 129, 0.12);
+        color: #6ee7b7;
+      }
+      a.dl.linux:hover {
+        background: rgba(16, 185, 129, 0.24);
       }
       .tag {
         font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -409,6 +418,12 @@
         border-color: rgba(255, 255, 255, 0.2);
         box-shadow: 0 10px 36px rgba(14, 165, 233, 0.3);
       }
+      a.big-dl.linux {
+        color: #ecfdf5;
+        background: linear-gradient(135deg, #047857, #10b981);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 36px rgba(16, 185, 129, 0.28);
+      }
       a.big-dl.missing {
         cursor: default;
         opacity: 0.45;
@@ -423,6 +438,59 @@
         color: var(--muted);
         margin: 0 0 0.85rem;
         line-height: 1.5;
+      }
+      .help-section {
+        margin-bottom: 2rem;
+      }
+      .help-section h2 {
+        font-family: "Outfit", sans-serif;
+        font-weight: 600;
+        font-size: 1.05rem;
+        margin: 0 0 0.85rem;
+        letter-spacing: -0.02em;
+        color: var(--muted);
+      }
+      .help-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+      }
+      details.help {
+        border: 1px solid var(--stroke);
+        border-radius: 16px;
+        padding: 0.65rem 1rem 0.85rem;
+        background: rgba(255, 255, 255, 0.03);
+      }
+      details.help summary {
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--text);
+        padding: 0.35rem 0;
+      }
+      details.help summary::-webkit-details-marker {
+        color: var(--accent);
+      }
+      details.help .body {
+        margin-top: 0.65rem;
+        font-size: 0.86rem;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      details.help .body strong {
+        color: #e9d5ff;
+      }
+      details.help pre {
+        margin: 0.5rem 0 0;
+        padding: 0.65rem 0.75rem;
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid var(--stroke);
+        font-size: 0.78rem;
+        overflow-x: auto;
+        color: #c4b5fd;
+        white-space: pre-wrap;
+        word-break: break-all;
       }
     </style>
   </head>
@@ -441,13 +509,14 @@
       <section class="hero">
         <div class="pill-row">
           <span class="pill accent">Public builds</span>
-          <span class="pill">Web + macOS + Windows</span>
+          <span class="pill">Web + macOS + Windows + Linux</span>
         </div>
         <h1>Learn DSA with a step-by-step trace</h1>
         <p class="lead">
           Use the app in your <strong style="color: #c4b5fd">browser</strong> (online) or install the
-          <strong style="color: #7dd3fc">desktop</strong> build for macOS and Windows — including older
-          versions whenever we publish them.
+          <strong style="color: #7dd3fc">desktop</strong> app for <strong style="color: #c4b5fd">macOS</strong>,
+          <strong style="color: #7dd3fc">Windows</strong>, or <strong style="color: #6ee7b7">Linux</strong> (.deb /
+          AppImage) — older builds stay listed below.
         </p>
       </section>
 
@@ -461,15 +530,59 @@
           <a class="go web" href="./app/">Open web app →</a>
         </article>
         <article class="opt">
-          <h2><span class="icon-emoji" aria-hidden="true">💻</span> Desktop (Mac &amp; PC)</h2>
+          <h2><span class="icon-emoji" aria-hidden="true">💻</span> Desktop (Mac, Windows, Linux)</h2>
           <p>
-            <strong style="color: var(--text)">.dmg</strong> for macOS and <strong style="color: var(--text)">.exe</strong> (or
-            <strong style="color: var(--text)">.msi</strong>) for Windows. After a release is published, use the
-            <strong style="color: var(--text)">big download buttons</strong> below — this link only scrolls to that section.
+            <strong style="color: var(--text)">.dmg</strong> (Mac), <strong style="color: var(--text)">.exe</strong> /
+            <strong style="color: var(--text)">.msi</strong> (Windows), <strong style="color: var(--text)">.deb</strong> or
+            <strong style="color: var(--text)">.AppImage</strong> (Linux). After a release exists, use the
+            <strong style="color: var(--text)">download buttons</strong> below — this link only scrolls.
           </p>
-          <a class="go desktop" id="scroll-releases" href="#releases">Go to Mac &amp; Windows downloads ↓</a>
+          <a class="go desktop" id="scroll-releases" href="#releases">Go to desktop downloads ↓</a>
         </article>
       </div>
+
+      <section class="help-section" aria-label="Install troubleshooting">
+        <h2>Having trouble opening the app?</h2>
+        <div class="help-grid">
+          <details class="help" open>
+            <summary>macOS: “DSA Visualizer” is damaged and can’t be opened</summary>
+            <div class="body">
+              <p style="margin: 0 0 0.65rem">
+                This usually means the app is <strong>unsigned</strong> (not notarized by Apple). The download is not
+                corrupted — Gatekeeper is blocking it.
+              </p>
+              <p style="margin: 0 0 0.5rem"><strong>Option A — Open once:</strong></p>
+              <p style="margin: 0 0 0.65rem">
+                Copy <strong>DSA Visualizer.app</strong> from the <code>.dmg</code> into <strong>Applications</strong>.
+                Then <strong>right‑click</strong> the app → <strong>Open</strong> → confirm <strong>Open</strong>.
+              </p>
+              <p style="margin: 0 0 0.5rem"><strong>Option B — Remove quarantine (Terminal):</strong></p>
+              <pre>xattr -cr "/Applications/DSA Visualizer.app"</pre>
+              <p style="margin: 0.5rem 0 0; font-size: 0.8rem">
+                Adjust the path if the app lives elsewhere. Then try opening the app again. A future
+                <strong>signed &amp; notarized</strong> build won’t need this (requires an Apple Developer account).
+              </p>
+            </div>
+          </details>
+          <details class="help" open>
+            <summary>Linux: install <code>.deb</code> or run <code>.AppImage</code></summary>
+            <div class="body">
+              <p style="margin: 0 0 0.5rem">
+                CI builds are <strong>amd64</strong> for Debian/Ubuntu-style systems. Download the <strong>Linux</strong>
+                column assets from the table below (or use the green “Download for Linux” button when present).
+              </p>
+              <p style="margin: 0 0 0.35rem"><strong>.deb</strong> (install with dependencies):</p>
+              <pre>sudo apt install ./dsa-visualizer_*.deb</pre>
+              <p style="margin: 0.45rem 0 0.35rem; font-size: 0.8rem">If that fails:</p>
+              <pre>sudo dpkg -i ./your-file.deb
+sudo apt-get install -f</pre>
+              <p style="margin: 0.65rem 0 0.35rem"><strong>AppImage</strong> (portable):</p>
+              <pre>chmod +x ./DSA*.AppImage
+./DSA*.AppImage</pre>
+            </div>
+          </details>
+        </div>
+      </section>
 
       <section id="releases">
         <div class="releases-head">
@@ -481,16 +594,19 @@
           <div id="quick-downloads" hidden></div>
           <div id="status">Loading releases…</div>
           <p class="table-legend" id="table-legend" hidden>
-            <strong>Windows:</strong> use the <strong>Windows</strong> column — look for the <code>.exe</code> setup (NSIS).
-            Some releases also include an <code>.msi</code>. <strong>macOS:</strong> <code>.dmg</code> in the macOS column.
+            <strong>macOS:</strong> <code>.dmg</code> · <strong>Windows:</strong> <code>.exe</code> (NSIS) or
+            <code>.msi</code> · <strong>Linux:</strong> <code>.deb</code> (Debian/Ubuntu) or portable
+            <code>.AppImage</code>.
           </p>
           <div id="table-wrap" hidden></div>
         </div>
       </section>
 
       <footer>
-        Desktop installers may be <strong>unsigned</strong> — Gatekeeper / SmartScreen can warn until you allow them.
-        This public repo only holds <strong>releases + static site</strong>; your source code stays private.
+        <strong>macOS “damaged”?</strong> See the box above — run <code>xattr -cr</code> or right‑click → Open.
+        <strong>Linux</strong> packages are built on Ubuntu (amd64): <code>.deb</code> + <code>.AppImage</code> per release.
+        Installers are <strong>unsigned</strong>; Windows SmartScreen may also warn. This public repo only hosts
+        <strong>releases + static site</strong>; source stays private.
       </footer>
     </div>
 
@@ -542,6 +658,8 @@
           if (lower.endsWith(".dmg")) return "mac";
           if (lower.endsWith(".exe")) return "win";
           if (lower.endsWith(".msi")) return "msi";
+          if (lower.endsWith(".deb")) return "linux";
+          if (lower.endsWith(".appimage")) return "linux";
           if (lower.endsWith(".app") || lower.includes(".app.zip")) return "mac";
           return "";
         }
@@ -551,16 +669,22 @@
           let dmg = null;
           let exe = null;
           let msi = null;
+          let deb = null;
+          let appimage = null;
           for (let i = 0; i < assets.length; i++) {
             const a = assets[i];
             const n = (a.name || "").toLowerCase();
             if (n.endsWith(".dmg") && !dmg) dmg = a;
             if (n.endsWith(".exe") && !exe) exe = a;
             if (n.endsWith(".msi") && !msi) msi = a;
+            if (n.endsWith(".deb") && !deb) deb = a;
+            if (n.endsWith(".appimage") && !appimage) appimage = a;
           }
           const win = exe || msi;
           const winSuffix = exe ? ".exe" : msi ? ".msi" : null;
-          return { dmg: dmg, win: win, winSuffix: winSuffix };
+          const linux = deb || appimage;
+          const linuxSuffix = deb ? ".deb" : appimage ? ".AppImage" : null;
+          return { dmg: dmg, win: win, winSuffix: winSuffix, linux: linux, linuxSuffix: linuxSuffix };
         }
 
         function render(releases) {
@@ -574,8 +698,8 @@
             elStatus.innerHTML =
               "<p style='margin:0 0 .75rem'><strong>No desktop releases yet.</strong> There is nothing to download until " +
               "a release is published. Run <strong>Publish public desktop release</strong> in your private repo (GitHub Actions) — " +
-              "it uploads <strong>Mac (.dmg)</strong> and <strong>Windows (.exe / .msi)</strong> here.</p>" +
-              "<p style='margin:0 0 .75rem'>The button &quot;Go to Mac &amp; Windows downloads&quot; only <em>scrolls</em> — it does not download files by itself.</p>" +
+              "it uploads <strong>Mac (.dmg)</strong>, <strong>Windows (.exe / .msi)</strong>, and <strong>Linux (.deb / .AppImage)</strong> here.</p>" +
+              "<p style='margin:0 0 .75rem'>The &quot;Go to desktop downloads&quot; link only <em>scrolls</em> — it does not download by itself.</p>" +
               "<p style='margin:0'>Check <a href='" +
               releasesPage +
               "' rel='noopener'>GitHub → Releases</a> (will be empty until the first successful publish).</p>";
@@ -604,6 +728,14 @@
               ")</a>"
             : '<span class="big-dl missing" role="status">No Windows installer in latest release — try another row</span>';
 
+          const linuxBtn = pick.linux
+            ? '<a class="big-dl linux" href="' +
+              pick.linux.browser_download_url +
+              '" rel="noopener">Download for Linux (' +
+              escapeHtml(pick.linuxSuffix || ".deb") +
+              ")</a>"
+            : '<span class="big-dl missing" role="status">No Linux package in latest — try another row</span>';
+
           elQuick.innerHTML =
             '<p class="quick-dl-label">Latest release: <strong>' +
             escapeHtml(tag) +
@@ -611,6 +743,7 @@
             '<div class="quick-dl-btns">' +
             macBtn +
             winBtn +
+            linuxBtn +
             "</div>";
           elQuick.hidden = false;
           elLegend.hidden = false;
@@ -618,17 +751,22 @@
           const rows = releases.map(function (rel) {
             const mac = [];
             const win = [];
+            const linux = [];
             (rel.assets || []).forEach(function (a) {
               const k = labelAsset(a.name);
               if (k === "mac") mac.push(a);
               if (k === "win" || k === "msi") win.push(a);
+              if (k === "linux") linux.push(a);
             });
 
             const links = function (assets, cls) {
               if (!assets.length) return '<span class="muted">—</span>';
               return assets
                 .map(function (a) {
-                  const c = cls || (labelAsset(a.name) === "mac" ? "mac" : "");
+                  const lab = labelAsset(a.name);
+                  const c =
+                    cls ||
+                    (lab === "mac" ? "mac" : lab === "linux" ? "linux" : "");
                   return (
                     '<a class="dl ' +
                     c +
@@ -658,12 +796,15 @@
               "<td>" +
               links(win, "") +
               "</td>" +
+              "<td>" +
+              links(linux, "linux") +
+              "</td>" +
               "</tr>"
             );
           });
 
           elTable.innerHTML =
-            '<table><thead><tr><th>Release</th><th>Date</th><th>macOS (.dmg)</th><th>Windows (.exe / .msi)</th></tr></thead><tbody>' +
+            '<table><thead><tr><th>Release</th><th>Date</th><th>macOS</th><th>Windows</th><th>Linux</th></tr></thead><tbody>' +
             rows.join("") +
             "</tbody></table>";
           elTable.hidden = false;
