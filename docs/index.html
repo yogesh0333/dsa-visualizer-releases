@@ -356,6 +356,74 @@
         border-radius: 6px;
         font-size: 0.82em;
       }
+      #quick-downloads {
+        margin-bottom: 1.25rem;
+        padding: 1.1rem 1.15rem;
+        border-radius: 16px;
+        background: rgba(168, 85, 255, 0.08);
+        border: 1px solid rgba(168, 85, 255, 0.28);
+      }
+      #quick-downloads[hidden] {
+        display: none !important;
+      }
+      .quick-dl-label {
+        margin: 0 0 0.75rem;
+        font-size: 0.88rem;
+        color: var(--muted);
+      }
+      .quick-dl-label strong {
+        color: var(--text);
+        font-family: ui-monospace, monospace;
+        font-size: 0.85rem;
+      }
+      .quick-dl-btns {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+      }
+      a.big-dl {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        padding: 0.75rem 1.15rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-decoration: none;
+        border: 1px solid transparent;
+        transition: transform 0.12s, box-shadow 0.2s;
+      }
+      a.big-dl:hover {
+        transform: translateY(-1px);
+      }
+      a.big-dl.mac {
+        color: #f5e6ff;
+        background: linear-gradient(135deg, #7c3aed, #a855ff);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 36px rgba(124, 58, 237, 0.35);
+      }
+      a.big-dl.win {
+        color: #f0f9ff;
+        background: linear-gradient(135deg, #0284c7, #0ea5e9);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 36px rgba(14, 165, 233, 0.3);
+      }
+      a.big-dl.missing {
+        cursor: default;
+        opacity: 0.45;
+        pointer-events: none;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--muted);
+        border-color: var(--stroke);
+        box-shadow: none;
+      }
+      .table-legend {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin: 0 0 0.85rem;
+        line-height: 1.5;
+      }
     </style>
   </head>
   <body>
@@ -395,22 +463,27 @@
         <article class="opt">
           <h2><span class="icon-emoji" aria-hidden="true">💻</span> Desktop (Mac &amp; PC)</h2>
           <p>
-            <strong style="color: var(--text)">.dmg</strong> for macOS and <strong style="color: var(--text)">.exe</strong> /
-            <strong style="color: var(--text)">.msi</strong> for Windows. Offline-friendly native shell via Tauri. Installers
-            appear in the table below after each release.
+            <strong style="color: var(--text)">.dmg</strong> for macOS and <strong style="color: var(--text)">.exe</strong> (or
+            <strong style="color: var(--text)">.msi</strong>) for Windows. After a release is published, use the
+            <strong style="color: var(--text)">big download buttons</strong> below — this link only scrolls to that section.
           </p>
-          <a class="go desktop" id="scroll-releases" href="#releases">Get desktop builds ↓</a>
+          <a class="go desktop" id="scroll-releases" href="#releases">Go to Mac &amp; Windows downloads ↓</a>
         </article>
       </div>
 
       <section id="releases">
         <div class="releases-head">
           <h2>All published versions</h2>
-          <span class="hint">macOS · Windows · previous builds stay listed</span>
+          <span class="hint">Latest = one-click · table = all versions</span>
         </div>
         <div class="panel">
           <div id="target-repo" hidden></div>
+          <div id="quick-downloads" hidden></div>
           <div id="status">Loading releases…</div>
+          <p class="table-legend" id="table-legend" hidden>
+            <strong>Windows:</strong> use the <strong>Windows</strong> column — look for the <code>.exe</code> setup (NSIS).
+            Some releases also include an <code>.msi</code>. <strong>macOS:</strong> <code>.dmg</code> in the macOS column.
+          </p>
           <div id="table-wrap" hidden></div>
         </div>
       </section>
@@ -453,6 +526,8 @@
         const elStatus = document.getElementById("status");
         const elTable = document.getElementById("table-wrap");
         const elRepo = document.getElementById("target-repo");
+        const elQuick = document.getElementById("quick-downloads");
+        const elLegend = document.getElementById("table-legend");
 
         elRepo.textContent = "Source: " + owner + "/" + repo;
         elRepo.hidden = false;
@@ -471,19 +546,74 @@
           return "";
         }
 
+        function pickInstallerAssets(rel) {
+          const assets = rel.assets || [];
+          let dmg = null;
+          let exe = null;
+          let msi = null;
+          for (let i = 0; i < assets.length; i++) {
+            const a = assets[i];
+            const n = (a.name || "").toLowerCase();
+            if (n.endsWith(".dmg") && !dmg) dmg = a;
+            if (n.endsWith(".exe") && !exe) exe = a;
+            if (n.endsWith(".msi") && !msi) msi = a;
+          }
+          const win = exe || msi;
+          const winSuffix = exe ? ".exe" : msi ? ".msi" : null;
+          return { dmg: dmg, win: win, winSuffix: winSuffix };
+        }
+
         function render(releases) {
           elStatus.textContent = "";
           elStatus.className = "";
+          elQuick.hidden = true;
+          elQuick.innerHTML = "";
+          elLegend.hidden = true;
           if (!releases.length) {
             elStatus.className = "empty-hint";
             elStatus.innerHTML =
-              "<p style='margin:0 0 .75rem'><strong>No desktop releases yet.</strong> Mac &amp; Windows installers show up here after " +
-              "the private repo runs <strong>Publish public desktop release</strong> (GitHub Actions).</p>" +
-              "<p style='margin:0'>Open the <a href='" +
+              "<p style='margin:0 0 .75rem'><strong>No desktop releases yet.</strong> There is nothing to download until " +
+              "a release is published. Run <strong>Publish public desktop release</strong> in your private repo (GitHub Actions) — " +
+              "it uploads <strong>Mac (.dmg)</strong> and <strong>Windows (.exe / .msi)</strong> here.</p>" +
+              "<p style='margin:0 0 .75rem'>The button &quot;Go to Mac &amp; Windows downloads&quot; only <em>scrolls</em> — it does not download files by itself.</p>" +
+              "<p style='margin:0'>Check <a href='" +
               releasesPage +
-              "' rel='noopener'>Releases tab on GitHub</a> — or ask the maintainer to run that workflow once.</p>";
+              "' rel='noopener'>GitHub → Releases</a> (will be empty until the first successful publish).</p>";
             return;
           }
+
+          releases.sort(function (a, b) {
+            return new Date(b.published_at || 0) - new Date(a.published_at || 0);
+          });
+
+          const latest = releases[0];
+          const pick = pickInstallerAssets(latest);
+          const tag = latest.tag_name || latest.name || "latest";
+
+          const macBtn = pick.dmg
+            ? '<a class="big-dl mac" href="' +
+              pick.dmg.browser_download_url +
+              '" rel="noopener">Download for Mac (.dmg)</a>'
+            : '<span class="big-dl missing" role="status">No .dmg in latest release — try another row</span>';
+
+          const winBtn = pick.win
+            ? '<a class="big-dl win" href="' +
+              pick.win.browser_download_url +
+              '" rel="noopener">Download for Windows (' +
+              escapeHtml(pick.winSuffix || ".exe") +
+              ")</a>"
+            : '<span class="big-dl missing" role="status">No Windows installer in latest release — try another row</span>';
+
+          elQuick.innerHTML =
+            '<p class="quick-dl-label">Latest release: <strong>' +
+            escapeHtml(tag) +
+            "</strong> — direct downloads</p>" +
+            '<div class="quick-dl-btns">' +
+            macBtn +
+            winBtn +
+            "</div>";
+          elQuick.hidden = false;
+          elLegend.hidden = false;
 
           const rows = releases.map(function (rel) {
             const mac = [];
@@ -533,7 +663,7 @@
           });
 
           elTable.innerHTML =
-            '<table><thead><tr><th>Release</th><th>Date</th><th>macOS</th><th>Windows</th></tr></thead><tbody>' +
+            '<table><thead><tr><th>Release</th><th>Date</th><th>macOS (.dmg)</th><th>Windows (.exe / .msi)</th></tr></thead><tbody>' +
             rows.join("") +
             "</tbody></table>";
           elTable.hidden = false;
